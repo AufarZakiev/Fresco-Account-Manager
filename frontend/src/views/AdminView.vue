@@ -1,0 +1,284 @@
+<script setup lang="ts">
+import { onMounted, ref } from "vue";
+import { useAuthStore } from "../stores/auth";
+import {
+  apiAdminGetStats,
+  apiAdminListUsers,
+  apiAdminCreateProject,
+  ApiError,
+  type AdminStats,
+  type AdminUser,
+} from "../api/client";
+
+const auth = useAuthStore();
+
+const stats = ref<AdminStats | null>(null);
+const users = ref<AdminUser[]>([]);
+const loading = ref(true);
+const error = ref("");
+
+// New project form
+const projectUrl = ref("");
+const projectName = ref("");
+const projectDesc = ref("");
+const projectSubmitting = ref(false);
+const projectError = ref<string | null>(null);
+const projectSuccess = ref<string | null>(null);
+
+function formatDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString();
+}
+
+onMounted(async () => {
+  if (!auth.user?.is_admin) {
+    loading.value = false;
+    return;
+  }
+
+  try {
+    const [s, u] = await Promise.all([
+      apiAdminGetStats(),
+      apiAdminListUsers(),
+    ]);
+    stats.value = s;
+    users.value = u;
+  } catch (e: unknown) {
+    error.value = e instanceof Error ? e.message : "Failed to load admin data";
+  } finally {
+    loading.value = false;
+  }
+});
+
+async function onCreateProject() {
+  projectError.value = null;
+  projectSuccess.value = null;
+
+  if (!projectUrl.value || !projectName.value) {
+    projectError.value = "URL and Name are required.";
+    return;
+  }
+
+  projectSubmitting.value = true;
+  try {
+    await apiAdminCreateProject({
+      url: projectUrl.value,
+      name: projectName.value,
+      description: projectDesc.value || undefined,
+    });
+    projectSuccess.value = `Project "${projectName.value}" created successfully.`;
+    projectUrl.value = "";
+    projectName.value = "";
+    projectDesc.value = "";
+  } catch (e: unknown) {
+    if (e instanceof ApiError) {
+      projectError.value = e.message || "Failed to create project.";
+    } else {
+      projectError.value = "Failed to create project.";
+    }
+  } finally {
+    projectSubmitting.value = false;
+  }
+}
+</script>
+
+<template>
+  <div class="page">
+    <h1>Admin Panel</h1>
+
+    <div v-if="!auth.user?.is_admin" class="card access-denied">
+      <h2>Access Denied</h2>
+      <p class="muted">You do not have administrator privileges to view this page.</p>
+    </div>
+
+    <template v-else>
+      <p v-if="loading" class="muted">Loading...</p>
+      <p v-else-if="error" class="error-banner">{{ error }}</p>
+
+      <template v-else>
+        <!-- System Stats -->
+        <div class="admin-stats-cards">
+          <div v-if="stats" class="card admin-stat-card">
+            <span class="admin-stat-label">Users</span>
+            <span class="admin-stat-value">{{ stats.total_users }}</span>
+          </div>
+          <div v-if="stats" class="card admin-stat-card">
+            <span class="admin-stat-label">Hosts</span>
+            <span class="admin-stat-value">{{ stats.total_hosts }}</span>
+          </div>
+          <div v-if="stats" class="card admin-stat-card">
+            <span class="admin-stat-label">Projects</span>
+            <span class="admin-stat-value">{{ stats.total_projects }}</span>
+          </div>
+          <div v-if="stats" class="card admin-stat-card">
+            <span class="admin-stat-label">Enrollments</span>
+            <span class="admin-stat-value">{{ stats.total_enrollments }}</span>
+          </div>
+          <div v-if="stats" class="card admin-stat-card">
+            <span class="admin-stat-label">Active Sessions</span>
+            <span class="admin-stat-value">{{ stats.active_sessions }}</span>
+          </div>
+        </div>
+
+        <!-- User List -->
+        <div class="card admin-section">
+          <h2>Users</h2>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Email</th>
+                  <th>Name</th>
+                  <th>Admin</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="u in users" :key="u.id">
+                  <td>{{ u.id }}</td>
+                  <td>{{ u.email }}</td>
+                  <td>{{ u.name }}</td>
+                  <td>{{ u.is_admin ? "Yes" : "No" }}</td>
+                  <td>{{ formatDate(u.created_at) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Add Project -->
+        <div class="card admin-section">
+          <h2>Add New Project</h2>
+
+          <div v-if="projectSuccess" class="success-banner">{{ projectSuccess }}</div>
+          <div v-if="projectError" class="error-banner">{{ projectError }}</div>
+
+          <form class="add-project-form" @submit.prevent="onCreateProject">
+            <label>
+              Project URL
+              <input
+                v-model="projectUrl"
+                type="text"
+                required
+                placeholder="https://project.example.com/"
+              />
+            </label>
+
+            <label>
+              Project Name
+              <input
+                v-model="projectName"
+                type="text"
+                required
+                placeholder="Project name"
+              />
+            </label>
+
+            <label>
+              Description
+              <textarea
+                v-model="projectDesc"
+                rows="3"
+                placeholder="Optional description"
+              ></textarea>
+            </label>
+
+            <button
+              type="submit"
+              class="btn-primary"
+              :disabled="projectSubmitting"
+            >
+              {{ projectSubmitting ? "Creating..." : "Create Project" }}
+            </button>
+          </form>
+        </div>
+      </template>
+    </template>
+  </div>
+</template>
+
+<style scoped>
+.access-denied {
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.admin-stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.25rem;
+}
+
+.admin-stat-label {
+  font-size: 0.8rem;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.admin-stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--c-text-heading);
+}
+
+.admin-section {
+  margin-bottom: 1.5rem;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.75rem;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.admin-table th {
+  font-size: 0.8rem;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-table td {
+  font-size: 0.9rem;
+}
+
+.add-project-form {
+  max-width: 500px;
+}
+
+.add-project-form .btn-primary {
+  margin-top: 0.5rem;
+}
+
+.success-banner {
+  background-color: rgba(46, 204, 113, 0.15);
+  border: 1px solid #2ecc71;
+  border-radius: var(--radius);
+  color: #2ecc71;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+</style>

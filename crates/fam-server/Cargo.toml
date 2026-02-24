@@ -1,0 +1,24 @@
+[package]
+name = "fam-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+fam-core = { workspace = true }
+
+axum = { workspace = true }
+tokio = { workspace = true }
+sqlx = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tower-http = { workspace = true }
+thiserror = { workspace = true }
+dotenvy = { workspace = true }
+rsa = { workspace = true }
+uuid = { workspace = true }
+md-5 = { workspace = true }
+axum-extra = { version = "0.10", features = ["cookie"] }
+anyhow = "1"
+time = { version = "0.3", features = ["serde"] }

@@ -1,0 +1,464 @@
+/* ===== Reset & Base ===== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --c-bg: #1a1a2e;
+  --c-surface: #16213e;
+  --c-border: #0f3460;
+  --c-primary: #646cff;
+  --c-primary-hover: #535bf2;
+  --c-danger: #e74c3c;
+  --c-danger-hover: #c0392b;
+  --c-text: #e0e0e0;
+  --c-text-muted: #8899aa;
+  --c-text-heading: #ffffff;
+  --radius: 6px;
+  --max-width: 960px;
+
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--c-text);
+  background-color: var(--c-bg);
+}
+
+body {
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--c-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--c-primary-hover);
+  text-decoration: underline;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--c-text-heading);
+  line-height: 1.3;
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ===== App Header / Nav ===== */
+
+.app-header {
+  background-color: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  padding: 0 1.5rem;
+}
+
+.app-nav {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  height: 3.5rem;
+  gap: 1.5rem;
+}
+
+.nav-brand {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--c-text-heading);
+  letter-spacing: 0.05em;
+}
+
+.nav-brand:hover {
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+}
+
+.nav-links a {
+  color: var(--c-text-muted);
+  font-size: 0.9rem;
+  padding: 0.25rem 0;
+}
+
+.nav-links a:hover,
+.nav-links a.router-link-active {
+  color: var(--c-text-heading);
+  text-decoration: none;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.nav-user {
+  color: var(--c-text-muted);
+}
+
+/* ===== Page Layout ===== */
+
+.page {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  width: 100%;
+}
+
+/* ===== Cards ===== */
+
+.card {
+  background-color: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+/* ===== Buttons ===== */
+
+button,
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s, opacity 0.15s;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--c-primary);
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--c-primary-hover);
+}
+
+.btn-secondary {
+  background-color: var(--c-border);
+  color: var(--c-text);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #1a4a7a;
+}
+
+.btn-danger {
+  background-color: var(--c-danger);
+  color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: var(--c-danger-hover);
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--c-primary);
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0;
+}
+
+.btn-link:hover {
+  color: var(--c-primary-hover);
+  text-decoration: underline;
+}
+
+/* ===== Forms ===== */
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+select,
+textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--c-text);
+  background-color: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--c-primary);
+}
+
+label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--c-text-muted);
+  margin-bottom: 1rem;
+}
+
+label input {
+  margin-top: 0.25rem;
+}
+
+/* ===== Auth Pages ===== */
+
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  padding: 2rem 1rem;
+}
+
+.auth-form {
+  background-color: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-form h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.auth-form .btn-primary {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.65rem;
+}
+
+.auth-alt {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--c-text-muted);
+}
+
+/* ===== Error ===== */
+
+.error-banner {
+  background-color: rgba(231, 76, 60, 0.15);
+  border: 1px solid var(--c-danger);
+  border-radius: var(--radius);
+  color: #e74c3c;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* ===== Utility ===== */
+
+.muted {
+  color: var(--c-text-muted);
+}
+
+.small {
+  font-size: 0.85rem;
+}
+
+.big-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--c-text-heading);
+  margin: 0.5rem 0;
+}
+
+.card-link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* ===== Dashboard ===== */
+
+.greeting {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+/* ===== Search ===== */
+
+.search-input {
+  margin-bottom: 1.5rem;
+}
+
+/* ===== Project Catalog Grid ===== */
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.project-desc {
+  flex: 1;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 1rem;
+  color: var(--c-text-muted);
+}
+
+.project-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: auto;
+}
+
+/* ===== My Projects List ===== */
+
+.my-projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.my-project-card.suspended {
+  opacity: 0.65;
+}
+
+.my-project-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.my-project-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.range-label {
+  flex: 1;
+  min-width: 200px;
+  margin-bottom: 0;
+}
+
+.range-label input[type="range"] {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-label input[type="checkbox"] {
+  width: auto;
+}
+
+.my-project-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ===== Settings Info List ===== */
+
+.info-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 1rem;
+}
+
+.info-list dt {
+  color: var(--c-text-muted);
+  font-size: 0.9rem;
+}
+
+.info-list dd {
+  color: var(--c-text);
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 600px) {
+  .app-nav {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 0.75rem 0;
+    gap: 0.5rem;
+  }
+
+  .nav-links {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .dashboard-cards,
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+}

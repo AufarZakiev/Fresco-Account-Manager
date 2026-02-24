@@ -1,0 +1,6 @@
+CREATE TABLE user_preferences (
+    id        BIGSERIAL PRIMARY KEY,
+    user_id   BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+    prefs_xml TEXT NOT NULL DEFAULT '',
+    mod_time  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

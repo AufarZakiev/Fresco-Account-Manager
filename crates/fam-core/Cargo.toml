@@ -1,0 +1,20 @@
+[package]
+name = "fam-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+quick-xml = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sqlx = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+md-5 = { workspace = true }
+hex = { workspace = true }
+reqwest = { workspace = true }
+rsa = { workspace = true }
+rand = "0.8"
+urlencoding = "2"
+time = { version = "0.3", features = ["serde"] }

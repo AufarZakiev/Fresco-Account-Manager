@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: fam
+      POSTGRES_PASSWORD: fam
+      POSTGRES_DB: fam
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fam"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  fam:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      FAM_DATABASE_URL: postgres://fam:fam@postgres:5432/fam
+      FAM_LISTEN_ADDR: "0.0.0.0:8080"
+      FAM_SERVER_NAME: "Fresco Account Manager"
+      RUST_LOG: info
+    volumes:
+      - ./keys:/app/keys
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
