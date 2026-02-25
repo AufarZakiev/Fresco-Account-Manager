@@ -64,16 +64,21 @@ function onShareChange(upId: number, event: Event) {
 
 <template>
   <div class="page">
-    <h1>My Projects</h1>
+    <div class="page-header">
+      <h1 class="page-title">My Projects</h1>
+    </div>
 
     <p v-if="store.userProjectsLoading" class="muted">Loading...</p>
     <p v-else-if="store.userProjectsError" class="error-banner">
       {{ store.userProjectsError }}
     </p>
-    <p v-else-if="store.userProjects.length === 0" class="muted">
-      You haven't joined any projects yet.
-      <RouterLink to="/projects">Browse the catalog</RouterLink>
-    </p>
+
+    <div v-else-if="store.userProjects.length === 0" class="empty-state">
+      <p class="empty-message">
+        You haven't joined any projects yet.
+        <RouterLink to="/projects">Browse the catalog</RouterLink>
+      </p>
+    </div>
 
     <div v-else class="my-projects-list">
       <div
@@ -88,15 +93,15 @@ function onShareChange(upId: number, event: Event) {
         <div class="my-project-header">
           <h3>
             {{ up.project_name }}
-            <span v-if="up.pending_detach" class="badge badge-warn"
-              >Detaching...</span
-            >
-            <span v-else-if="up.suspended" class="badge badge-muted"
-              >Suspended</span
-            >
+            <span v-if="up.pending_detach" class="badge badge-warning">
+              Detaching...
+            </span>
+            <span v-else-if="up.suspended" class="badge badge-default">
+              Suspended
+            </span>
             <span
               v-if="up.last_error"
-              class="badge badge-error"
+              class="badge badge-danger"
               :title="up.last_error"
             >
               Error ({{ up.consecutive_failures }})
@@ -106,7 +111,7 @@ function onShareChange(upId: number, event: Event) {
             :href="up.project_url"
             target="_blank"
             rel="noopener"
-            class="btn-link small"
+            class="btn-link text-sm"
           >
             Visit
           </a>
@@ -158,51 +163,3 @@ function onShareChange(upId: number, event: Event) {
     </div>
   </div>
 </template>
-
-<style scoped>
-.badge {
-  font-size: 0.75rem;
-  padding: 0.15em 0.5em;
-  border-radius: 4px;
-  margin-left: 0.5em;
-  vertical-align: middle;
-}
-
-.badge-warn {
-  background: #a16207;
-  color: #fef3c7;
-}
-
-.badge-muted {
-  background: #4b5563;
-  color: #d1d5db;
-}
-
-.badge-error {
-  background: #991b1b;
-  color: #fecaca;
-}
-
-.detaching {
-  opacity: 0.6;
-}
-
-.btn-secondary {
-  background: #374151;
-  color: #e5e7eb;
-  border: 1px solid #4b5563;
-  padding: 0.4em 0.8em;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.btn-secondary:hover {
-  background: #4b5563;
-}
-
-.my-project-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-</style>

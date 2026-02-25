@@ -62,7 +62,6 @@ async function onImportBoinc() {
   try {
     const res = await apiAdminImportBoinc();
     importResult.value = `Fetched ${res.total_fetched} projects: ${res.imported} imported, ${res.skipped} skipped.`;
-    // Refresh stats
     stats.value = await apiAdminGetStats();
   } catch (e: unknown) {
     if (e instanceof ApiError) {
@@ -109,7 +108,9 @@ async function onCreateProject() {
 
 <template>
   <div class="page">
-    <h1>Admin Panel</h1>
+    <div class="page-header">
+      <h1 class="page-title">Admin Panel</h1>
+    </div>
 
     <div v-if="!auth.user?.is_admin" class="card access-denied">
       <h2>Access Denied</h2>
@@ -122,34 +123,34 @@ async function onCreateProject() {
 
       <template v-else>
         <!-- System Stats -->
-        <div class="admin-stats-cards">
-          <div v-if="stats" class="card admin-stat-card">
-            <span class="admin-stat-label">Users</span>
-            <span class="admin-stat-value">{{ stats.total_users }}</span>
+        <div class="stats-cards">
+          <div v-if="stats" class="card stat-card">
+            <span class="stat-label">Users</span>
+            <span class="stat-value">{{ stats.total_users }}</span>
           </div>
-          <div v-if="stats" class="card admin-stat-card">
-            <span class="admin-stat-label">Hosts</span>
-            <span class="admin-stat-value">{{ stats.total_hosts }}</span>
+          <div v-if="stats" class="card stat-card">
+            <span class="stat-label">Hosts</span>
+            <span class="stat-value">{{ stats.total_hosts }}</span>
           </div>
-          <div v-if="stats" class="card admin-stat-card">
-            <span class="admin-stat-label">Projects</span>
-            <span class="admin-stat-value">{{ stats.total_projects }}</span>
+          <div v-if="stats" class="card stat-card">
+            <span class="stat-label">Projects</span>
+            <span class="stat-value">{{ stats.total_projects }}</span>
           </div>
-          <div v-if="stats" class="card admin-stat-card">
-            <span class="admin-stat-label">Enrollments</span>
-            <span class="admin-stat-value">{{ stats.total_enrollments }}</span>
+          <div v-if="stats" class="card stat-card">
+            <span class="stat-label">Enrollments</span>
+            <span class="stat-value">{{ stats.total_enrollments }}</span>
           </div>
-          <div v-if="stats" class="card admin-stat-card">
-            <span class="admin-stat-label">Active Sessions</span>
-            <span class="admin-stat-value">{{ stats.active_sessions }}</span>
+          <div v-if="stats" class="card stat-card">
+            <span class="stat-label">Active Sessions</span>
+            <span class="stat-value">{{ stats.active_sessions }}</span>
           </div>
         </div>
 
         <!-- User List -->
         <div class="card admin-section">
           <h2>Users</h2>
-          <div class="admin-table-wrap">
-            <table class="admin-table">
+          <div class="data-table-wrapper">
+            <table class="data-table">
               <thead>
                 <tr>
                   <th>ID</th>
@@ -164,7 +165,10 @@ async function onCreateProject() {
                   <td>{{ u.id }}</td>
                   <td>{{ u.email }}</td>
                   <td>{{ u.name }}</td>
-                  <td>{{ u.is_admin ? "Yes" : "No" }}</td>
+                  <td>
+                    <span v-if="u.is_admin" class="badge badge-info">Yes</span>
+                    <span v-else class="badge badge-default">No</span>
+                  </td>
                   <td>{{ formatDate(u.created_at) }}</td>
                 </tr>
               </tbody>
@@ -175,7 +179,7 @@ async function onCreateProject() {
         <!-- Import from BOINC -->
         <div class="card admin-section">
           <h2>Import Projects from BOINC</h2>
-          <p class="muted">
+          <p class="muted text-sm">
             Fetch the official BOINC project list and import all projects into the catalog.
             Existing projects are updated with the latest metadata.
           </p>
@@ -244,68 +248,17 @@ async function onCreateProject() {
 <style scoped>
 .access-denied {
   text-align: center;
-  padding: 3rem 1.5rem;
-}
-
-.admin-stats-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.admin-stat-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 1.25rem;
-}
-
-.admin-stat-label {
-  font-size: 0.8rem;
-  color: var(--c-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 0.5rem;
-}
-
-.admin-stat-value {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--c-text-heading);
+  padding: var(--space-2xl) var(--space-lg);
 }
 
 .admin-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-lg);
 }
 
-.admin-table-wrap {
-  overflow-x: auto;
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 0.75rem;
-}
-
-.admin-table th,
-.admin-table td {
-  padding: 0.6rem 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid var(--c-border);
-}
-
-.admin-table th {
-  font-size: 0.8rem;
-  color: var(--c-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.admin-table td {
-  font-size: 0.9rem;
+.admin-section .data-table-wrapper {
+  border: none;
+  border-radius: 0;
+  margin-top: var(--space-sm);
 }
 
 .add-project-form {
@@ -313,16 +266,6 @@ async function onCreateProject() {
 }
 
 .add-project-form .btn-primary {
-  margin-top: 0.5rem;
-}
-
-.success-banner {
-  background-color: rgba(46, 204, 113, 0.15);
-  border: 1px solid #2ecc71;
-  border-radius: var(--radius);
-  color: #2ecc71;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
+  margin-top: var(--space-sm);
 }
 </style>

@@ -1,8 +1,17 @@
 <script setup lang="ts">
-import AppHeader from "./components/AppHeader.vue";
+import { computed } from "vue";
+import { useAuthStore } from "./stores/auth";
+import AppSidebar from "./components/AppSidebar.vue";
+
+const auth = useAuthStore();
+const hasSidebar = computed(() => auth.isAuthenticated);
 </script>
 
 <template>
-  <AppHeader />
-  <RouterView />
+  <div class="app" :class="{ 'has-sidebar': hasSidebar }">
+    <AppSidebar />
+    <main class="main-content">
+      <RouterView />
+    </main>
+  </div>
 </template>

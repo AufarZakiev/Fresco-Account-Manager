@@ -12,12 +12,9 @@ const hosts = ref<Host[]>([]);
 const loading = ref(true);
 const error = ref("");
 
-// Track which host card is expanded and its detail data
 const expandedId = ref<number | null>(null);
 const hostDetails = reactive<Record<number, HostDetail>>({});
 const detailLoading = ref<number | null>(null);
-
-// Track venue saving state
 const savingVenueId = ref<number | null>(null);
 
 onMounted(async () => {
@@ -79,7 +76,6 @@ async function onVenueChange(host: Host, event: Event) {
   } catch (e: unknown) {
     error.value =
       e instanceof Error ? e.message : "Failed to update host venue";
-    // revert the select
     target.value = host.venue;
   } finally {
     savingVenueId.value = null;
@@ -89,13 +85,16 @@ async function onVenueChange(host: Host, event: Event) {
 
 <template>
   <div class="page">
-    <h1>Hosts</h1>
+    <div class="page-header">
+      <h1 class="page-title">Hosts</h1>
+    </div>
 
     <p v-if="loading" class="muted">Loading...</p>
     <p v-else-if="error" class="error-banner">{{ error }}</p>
-    <p v-else-if="hosts.length === 0" class="muted">
-      No hosts have connected yet.
-    </p>
+
+    <div v-else-if="hosts.length === 0" class="empty-state">
+      <p class="empty-message">No hosts have connected yet.</p>
+    </div>
 
     <div v-else class="hosts-list">
       <div
@@ -106,7 +105,7 @@ async function onVenueChange(host: Host, event: Event) {
       >
         <div class="host-header">
           <h3>{{ host.domain_name || `Host #${host.id}` }}</h3>
-          <span class="host-expand-hint muted small">
+          <span class="text-xs muted">
             {{ expandedId === host.id ? "Collapse" : "Details" }}
           </span>
         </div>
@@ -161,78 +160,3 @@ async function onVenueChange(host: Host, event: Event) {
     </div>
   </div>
 </template>
-
-<style scoped>
-.hosts-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.host-card {
-  cursor: pointer;
-  transition: border-color 0.15s;
-}
-
-.host-card:hover {
-  border-color: var(--c-primary);
-}
-
-.host-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
-
-.host-expand-hint {
-  flex-shrink: 0;
-}
-
-.host-info {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 0.75rem;
-}
-
-.host-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.host-label {
-  font-size: 0.8rem;
-  color: var(--c-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.host-field select {
-  width: auto;
-  max-width: 140px;
-  padding: 0.3rem 0.5rem;
-  font-size: 0.85rem;
-}
-
-.host-detail {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--c-border);
-}
-
-.host-xml {
-  background-color: var(--c-bg);
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius);
-  padding: 0.75rem;
-  font-size: 0.8rem;
-  line-height: 1.5;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-  max-height: 400px;
-  overflow-y: auto;
-  color: var(--c-text);
-}
-</style>

@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -k -n fe,be -c blue,green \"vite\" \"cargo run -p fam-server --manifest-path ../Cargo.toml\"",
+    "dev:fe": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
@@ -23,6 +24,7 @@
     "@volar/typescript": "^2.4.28",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
+    "concurrently": "^9.2.1",
     "jsdom": "^28.1.0",
     "oxlint": "^1.50.0",
     "prettier": "^3.8.1",

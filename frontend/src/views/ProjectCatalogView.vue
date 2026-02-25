@@ -10,7 +10,6 @@ const enrolledIds = ref<Set<number>>(new Set());
 
 onMounted(async () => {
   await Promise.all([store.fetchCatalog(), store.fetchUserProjects()]);
-  // Build a set of already-enrolled project IDs for quick lookup
   for (const up of store.userProjects) {
     enrolledIds.value.add(up.project_id);
   }
@@ -40,7 +39,9 @@ async function join(projectId: number) {
 
 <template>
   <div class="page">
-    <h1>Project Catalog</h1>
+    <div class="page-header">
+      <h1 class="page-title">Project Catalog</h1>
+    </div>
 
     <input
       v-model="search"
@@ -53,7 +54,10 @@ async function join(projectId: number) {
     <p v-else-if="store.catalogError" class="error-banner">
       {{ store.catalogError }}
     </p>
-    <p v-else-if="filtered.length === 0" class="muted">No projects found.</p>
+
+    <div v-else-if="filtered.length === 0" class="empty-state">
+      <p class="empty-message">No projects found.</p>
+    </div>
 
     <div v-else class="project-grid">
       <div
@@ -62,7 +66,7 @@ async function join(projectId: number) {
         class="card project-card"
       >
         <h3>{{ project.name }}</h3>
-        <p class="muted small">
+        <p class="text-xs muted">
           {{ project.general_area }}
           <template v-if="project.specific_area">
             / {{ project.specific_area }}
@@ -79,13 +83,12 @@ async function join(projectId: number) {
           >
             Website
           </a>
-          <button
+          <span
             v-if="enrolledIds.has(project.id)"
-            disabled
-            class="btn-secondary"
+            class="badge badge-success"
           >
             Joined
-          </button>
+          </span>
           <button
             v-else
             :disabled="enrollingId === project.id"

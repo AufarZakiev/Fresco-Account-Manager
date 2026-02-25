@@ -26,7 +26,9 @@ onMounted(async () => {
 
 <template>
   <div class="page">
-    <h1>Statistics</h1>
+    <div class="page-header">
+      <h1 class="page-title">Statistics</h1>
+    </div>
 
     <p v-if="loading" class="muted">Loading...</p>
     <p v-else-if="error" class="error-banner">{{ error }}</p>
@@ -51,12 +53,12 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="card projects-table-card">
-        <h2>Per-Project Credits</h2>
-        <p v-if="stats.projects.length === 0" class="muted">
-          No project credit data available.
-        </p>
-        <table v-else class="credits-table">
+      <div class="data-table-wrapper">
+        <h2 style="padding: 12px 12px 0;">Per-Project Credits</h2>
+        <div v-if="stats.projects.length === 0" class="empty-state">
+          <p class="empty-message">No project credit data available.</p>
+        </div>
+        <table v-else class="data-table">
           <thead>
             <tr>
               <th>Project</th>
@@ -76,67 +78,3 @@ onMounted(async () => {
     </template>
   </div>
 </template>
-
-<style scoped>
-.stats-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.stat-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 1.25rem;
-}
-
-.stat-label {
-  font-size: 0.85rem;
-  color: var(--c-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 0.5rem;
-}
-
-.stat-value {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--c-text-heading);
-}
-
-.projects-table-card {
-  overflow-x: auto;
-}
-
-.credits-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 0.75rem;
-}
-
-.credits-table th,
-.credits-table td {
-  padding: 0.6rem 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid var(--c-border);
-}
-
-.credits-table th {
-  font-size: 0.8rem;
-  color: var(--c-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.credits-table td {
-  font-size: 0.95rem;
-}
-
-.credits-table .num {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-</style>

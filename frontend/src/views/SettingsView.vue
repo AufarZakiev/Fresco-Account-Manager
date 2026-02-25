@@ -47,7 +47,9 @@ async function onChangePassword() {
 
 <template>
   <div class="page">
-    <h1>Settings</h1>
+    <div class="page-header">
+      <h1 class="page-title">Settings</h1>
+    </div>
 
     <div class="card settings-section">
       <h2>Account Information</h2>
@@ -111,7 +113,7 @@ async function onChangePassword() {
 
 <style scoped>
 .settings-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-lg);
 }
 
 .password-form {
@@ -119,16 +121,6 @@ async function onChangePassword() {
 }
 
 .password-form .btn-primary {
-  margin-top: 0.5rem;
-}
-
-.success-banner {
-  background-color: rgba(46, 204, 113, 0.15);
-  border: 1px solid #2ecc71;
-  border-radius: var(--radius);
-  color: #2ecc71;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
+  margin-top: var(--space-sm);
 }
 </style>

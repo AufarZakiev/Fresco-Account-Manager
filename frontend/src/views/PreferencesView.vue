@@ -36,7 +36,6 @@ async function handleSave() {
   try {
     await apiSetPreferences(prefsXml.value);
     success.value = "Preferences saved successfully.";
-    // Update mod_time to now
     modTime.value = new Date().toISOString();
   } catch (e: unknown) {
     error.value =
@@ -49,7 +48,9 @@ async function handleSave() {
 
 <template>
   <div class="page">
-    <h1>Global Preferences</h1>
+    <div class="page-header">
+      <h1 class="page-title">Global Preferences</h1>
+    </div>
 
     <p v-if="loading" class="muted">Loading...</p>
 
@@ -59,7 +60,7 @@ async function handleSave() {
 
       <div class="card prefs-card">
         <div class="prefs-meta">
-          <span class="muted small">
+          <span class="text-xs muted">
             Last modified: {{ modTime ? formatDate(modTime) : "never" }}
           </span>
         </div>
@@ -92,7 +93,7 @@ async function handleSave() {
 .prefs-card {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-sm);
 }
 
 .prefs-meta {
@@ -105,9 +106,9 @@ async function handleSave() {
 }
 
 .prefs-textarea {
-  margin-top: 0.5rem;
-  font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
-  font-size: 0.85rem;
+  margin-top: var(--space-sm);
+  font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+  font-size: var(--font-size-sm);
   line-height: 1.5;
   resize: vertical;
   min-height: 200px;
@@ -116,15 +117,5 @@ async function handleSave() {
 .prefs-actions {
   display: flex;
   justify-content: flex-end;
-}
-
-.success-banner {
-  background-color: rgba(46, 204, 113, 0.15);
-  border: 1px solid #2ecc71;
-  border-radius: var(--radius);
-  color: #2ecc71;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
 }
 </style>
