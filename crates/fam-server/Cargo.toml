@@ -20,5 +20,7 @@ rsa = { workspace = true }
 uuid = { workspace = true }
 md-5 = { workspace = true }
 axum-extra = { version = "0.10", features = ["cookie"] }
+quick-xml = { workspace = true }
+reqwest = { workspace = true }
 anyhow = "1"
 time = { version = "0.3", features = ["serde"] }

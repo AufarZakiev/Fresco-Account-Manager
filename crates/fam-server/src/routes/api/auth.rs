@@ -29,6 +29,7 @@ pub struct UserResponse {
     pub email: String,
     pub name: String,
     pub country: String,
+    pub is_admin: bool,
 }
 
 pub async fn register(
@@ -86,6 +87,7 @@ pub async fn register(
             email: user.email,
             name: user.name,
             country: user.country,
+            is_admin: user.is_admin,
         }),
     ))
 }
@@ -135,6 +137,7 @@ pub async fn login(
             email: user.email,
             name: user.name,
             country: user.country,
+            is_admin: user.is_admin,
         }),
     ))
 }
@@ -169,6 +172,7 @@ pub async fn me(
         email: user.email,
         name: user.name,
         country: user.country,
+        is_admin: user.is_admin,
     }))
 }
 

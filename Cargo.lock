@@ -391,6 +391,8 @@ dependencies = [
  "dotenvy",
  "fam-core",
  "md-5",
+ "quick-xml",
+ "reqwest",
  "rsa",
  "serde",
  "serde_json",

@@ -270,6 +270,18 @@ export function apiAdminCreateProject(data: {
   });
 }
 
+export interface ImportBoincResult {
+  imported: number;
+  skipped: number;
+  total_fetched: number;
+}
+
+export function apiAdminImportBoinc() {
+  return apiFetch<ImportBoincResult>("/admin/projects/import-boinc", {
+    method: "POST",
+  });
+}
+
 export function apiAdminUpdateProject(
   id: number,
   data: {

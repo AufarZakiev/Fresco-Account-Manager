@@ -151,6 +151,10 @@ async fn main() -> anyhow::Result<()> {
             axum::routing::post(routes::api::admin::create_project),
         )
         .route(
+            "/admin/projects/import-boinc",
+            axum::routing::post(routes::api::admin::import_boinc_projects),
+        )
+        .route(
             "/admin/projects/{id}",
             axum::routing::put(routes::api::admin::update_project),
         );

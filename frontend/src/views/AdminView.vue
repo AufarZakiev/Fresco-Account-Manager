@@ -5,6 +5,7 @@ import {
   apiAdminGetStats,
   apiAdminListUsers,
   apiAdminCreateProject,
+  apiAdminImportBoinc,
   ApiError,
   type AdminStats,
   type AdminUser,
@@ -24,6 +25,11 @@ const projectDesc = ref("");
 const projectSubmitting = ref(false);
 const projectError = ref<string | null>(null);
 const projectSuccess = ref<string | null>(null);
+
+// Import from BOINC
+const importLoading = ref(false);
+const importResult = ref<string | null>(null);
+const importError = ref<string | null>(null);
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString();
@@ -48,6 +54,26 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+
+async function onImportBoinc() {
+  importResult.value = null;
+  importError.value = null;
+  importLoading.value = true;
+  try {
+    const res = await apiAdminImportBoinc();
+    importResult.value = `Fetched ${res.total_fetched} projects: ${res.imported} imported, ${res.skipped} skipped.`;
+    // Refresh stats
+    stats.value = await apiAdminGetStats();
+  } catch (e: unknown) {
+    if (e instanceof ApiError) {
+      importError.value = e.message || "Failed to import projects.";
+    } else {
+      importError.value = "Failed to import projects.";
+    }
+  } finally {
+    importLoading.value = false;
+  }
+}
 
 async function onCreateProject() {
   projectError.value = null;
@@ -144,6 +170,24 @@ async function onCreateProject() {
               </tbody>
             </table>
           </div>
+        </div>
+
+        <!-- Import from BOINC -->
+        <div class="card admin-section">
+          <h2>Import Projects from BOINC</h2>
+          <p class="muted">
+            Fetch the official BOINC project list and import all projects into the catalog.
+            Existing projects are updated with the latest metadata.
+          </p>
+          <div v-if="importResult" class="success-banner">{{ importResult }}</div>
+          <div v-if="importError" class="error-banner">{{ importError }}</div>
+          <button
+            class="btn-primary"
+            :disabled="importLoading"
+            @click="onImportBoinc"
+          >
+            {{ importLoading ? "Importing..." : "Import from BOINC" }}
+          </button>
         </div>
 
         <!-- Add Project -->
