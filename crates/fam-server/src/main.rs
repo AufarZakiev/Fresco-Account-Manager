@@ -10,6 +10,7 @@ use std::sync::Arc;
 use axum::Router;
 use sqlx::postgres::PgPoolOptions;
 use tower_http::cors::CorsLayer;
+use tower_http::services::{ServeDir, ServeFile};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
 
@@ -154,10 +155,16 @@ async fn main() -> anyhow::Result<()> {
             axum::routing::put(routes::api::admin::update_project),
         );
 
+    // Serve Vue SPA static files with fallback to index.html for client-side routing
+    let static_dir = std::env::var("FAM_STATIC_DIR").unwrap_or_else(|_| "static".to_string());
+    let spa_service =
+        ServeDir::new(&static_dir).fallback(ServeFile::new(format!("{static_dir}/index.html")));
+
     let app = Router::new()
         .route("/health", axum::routing::get(routes::health::health))
         .merge(boinc_routes)
         .nest("/api", api_routes)
+        .fallback_service(spa_service)
         .layer(TraceLayer::new_for_http())
         .layer(CorsLayer::permissive())
         .with_state(state);

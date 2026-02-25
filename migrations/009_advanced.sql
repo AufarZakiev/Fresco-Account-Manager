@@ -3,4 +3,3 @@ ALTER TABLE user_projects ADD COLUMN detach_when_done BOOLEAN NOT NULL DEFAULT F
 ALTER TABLE user_projects ADD COLUMN is_weak_auth BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE user_projects ADD COLUMN last_error TEXT;
 ALTER TABLE user_projects ADD COLUMN consecutive_failures INT NOT NULL DEFAULT 0;
-ALTER TABLE user_projects ADD COLUMN no_rsc TEXT[] NOT NULL DEFAULT '{}';
