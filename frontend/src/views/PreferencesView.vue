@@ -123,16 +123,49 @@ const diskPctLabel = computed(() => `${prefs.value.diskMaxUsedPct}%`);
         <section class="card prefs-section">
           <h2 class="prefs-section-title">Computing Schedule</h2>
           <div class="prefs-grid">
-            <label class="toggle-label">
-              <input type="checkbox" v-model="prefs.runOnBatteries" />
+            <label class="switch-label">
+              <span
+                class="toggle-switch"
+                :class="{ on: prefs.runOnBatteries }"
+                role="switch"
+                :aria-checked="prefs.runOnBatteries"
+                tabindex="0"
+                @click.prevent="prefs.runOnBatteries = !prefs.runOnBatteries"
+                @keydown.enter.prevent="prefs.runOnBatteries = !prefs.runOnBatteries"
+                @keydown.space.prevent="prefs.runOnBatteries = !prefs.runOnBatteries"
+              >
+                <span class="toggle-knob" />
+              </span>
               Run on batteries
             </label>
-            <label class="toggle-label">
-              <input type="checkbox" v-model="prefs.runIfUserActive" />
+            <label class="switch-label">
+              <span
+                class="toggle-switch"
+                :class="{ on: prefs.runIfUserActive }"
+                role="switch"
+                :aria-checked="prefs.runIfUserActive"
+                tabindex="0"
+                @click.prevent="prefs.runIfUserActive = !prefs.runIfUserActive"
+                @keydown.enter.prevent="prefs.runIfUserActive = !prefs.runIfUserActive"
+                @keydown.space.prevent="prefs.runIfUserActive = !prefs.runIfUserActive"
+              >
+                <span class="toggle-knob" />
+              </span>
               Run if user is active
             </label>
-            <label class="toggle-label">
-              <input type="checkbox" v-model="prefs.runGpuIfUserActive" />
+            <label class="switch-label">
+              <span
+                class="toggle-switch"
+                :class="{ on: prefs.runGpuIfUserActive }"
+                role="switch"
+                :aria-checked="prefs.runGpuIfUserActive"
+                tabindex="0"
+                @click.prevent="prefs.runGpuIfUserActive = !prefs.runGpuIfUserActive"
+                @keydown.enter.prevent="prefs.runGpuIfUserActive = !prefs.runGpuIfUserActive"
+                @keydown.space.prevent="prefs.runGpuIfUserActive = !prefs.runGpuIfUserActive"
+              >
+                <span class="toggle-knob" />
+              </span>
               Run GPU if user is active
             </label>
 
@@ -228,8 +261,19 @@ const diskPctLabel = computed(() => `${prefs.value.diskMaxUsedPct}%`);
                 step="5"
               />
             </label>
-            <label class="toggle-label">
-              <input type="checkbox" v-model="prefs.leaveAppsInMemory" />
+            <label class="switch-label">
+              <span
+                class="toggle-switch"
+                :class="{ on: prefs.leaveAppsInMemory }"
+                role="switch"
+                :aria-checked="prefs.leaveAppsInMemory"
+                tabindex="0"
+                @click.prevent="prefs.leaveAppsInMemory = !prefs.leaveAppsInMemory"
+                @keydown.enter.prevent="prefs.leaveAppsInMemory = !prefs.leaveAppsInMemory"
+                @keydown.space.prevent="prefs.leaveAppsInMemory = !prefs.leaveAppsInMemory"
+              >
+                <span class="toggle-knob" />
+              </span>
               Leave apps in memory while suspended
             </label>
           </div>
@@ -370,16 +414,22 @@ const diskPctLabel = computed(() => `${prefs.value.diskMaxUsedPct}%`);
                 <option>Normal</option>
               </select>
             </label>
-            <label class="toggle-label">
-              <input type="checkbox" disabled />
+            <label class="switch-label">
+              <span class="toggle-switch disabled" role="switch" aria-checked="false">
+                <span class="toggle-knob" />
+              </span>
               Don't use VirtualBox
             </label>
-            <label class="toggle-label">
-              <input type="checkbox" disabled />
+            <label class="switch-label">
+              <span class="toggle-switch disabled" role="switch" aria-checked="false">
+                <span class="toggle-knob" />
+              </span>
               Don't use WSL
             </label>
-            <label class="toggle-label">
-              <input type="checkbox" disabled />
+            <label class="switch-label">
+              <span class="toggle-switch disabled" role="switch" aria-checked="false">
+                <span class="toggle-knob" />
+              </span>
               Don't use Docker
             </label>
             <label class="field-label">
@@ -495,6 +545,18 @@ const diskPctLabel = computed(() => `${prefs.value.diskMaxUsedPct}%`);
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   font-weight: 500;
+  margin-bottom: 0;
+}
+
+.switch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
   margin-bottom: 0;
 }
 

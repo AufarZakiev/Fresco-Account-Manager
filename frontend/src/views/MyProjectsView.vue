@@ -209,24 +209,36 @@ async function saveProjectPrefs(upId: number) {
             />
           </label>
 
-          <div class="checkbox-group">
-            <label class="toggle-label">
-              <input
-                type="checkbox"
-                :checked="up.suspended"
-                :disabled="savingId === up.id"
-                @change="toggleSuspend(up)"
-              />
+          <div class="switch-group">
+            <label class="switch-label">
+              <span
+                class="toggle-switch"
+                :class="{ on: up.suspended, disabled: savingId === up.id }"
+                role="switch"
+                :aria-checked="up.suspended"
+                tabindex="0"
+                @click.prevent="savingId !== up.id && toggleSuspend(up)"
+                @keydown.enter.prevent="savingId !== up.id && toggleSuspend(up)"
+                @keydown.space.prevent="savingId !== up.id && toggleSuspend(up)"
+              >
+                <span class="toggle-knob" />
+              </span>
               Suspended
             </label>
 
-            <label class="toggle-label">
-              <input
-                type="checkbox"
-                :checked="up.dont_request_more_work"
-                :disabled="savingId === up.id"
-                @change="toggleDontRequestMoreWork(up)"
-              />
+            <label class="switch-label">
+              <span
+                class="toggle-switch"
+                :class="{ on: up.dont_request_more_work, disabled: savingId === up.id }"
+                role="switch"
+                :aria-checked="up.dont_request_more_work"
+                tabindex="0"
+                @click.prevent="savingId !== up.id && toggleDontRequestMoreWork(up)"
+                @keydown.enter.prevent="savingId !== up.id && toggleDontRequestMoreWork(up)"
+                @keydown.space.prevent="savingId !== up.id && toggleDontRequestMoreWork(up)"
+              >
+                <span class="toggle-knob" />
+              </span>
               Don't request more work
             </label>
           </div>
@@ -239,14 +251,20 @@ async function saveProjectPrefs(upId: number) {
             <label
               v-for="rsc in RESOURCE_TYPES"
               :key="rsc.value"
-              class="toggle-label"
+              class="switch-label"
             >
-              <input
-                type="checkbox"
-                :checked="(up.no_rsc || []).includes(rsc.value)"
-                :disabled="savingId === up.id"
-                @change="toggleNoRsc(up, rsc.value)"
-              />
+              <span
+                class="toggle-switch"
+                :class="{ on: (up.no_rsc || []).includes(rsc.value), disabled: savingId === up.id }"
+                role="switch"
+                :aria-checked="(up.no_rsc || []).includes(rsc.value)"
+                tabindex="0"
+                @click.prevent="savingId !== up.id && toggleNoRsc(up, rsc.value)"
+                @keydown.enter.prevent="savingId !== up.id && toggleNoRsc(up, rsc.value)"
+                @keydown.space.prevent="savingId !== up.id && toggleNoRsc(up, rsc.value)"
+              >
+                <span class="toggle-knob" />
+              </span>
               {{ rsc.label }}
             </label>
           </div>
@@ -334,10 +352,22 @@ async function saveProjectPrefs(upId: number) {
 </template>
 
 <style scoped>
-.checkbox-group {
+.switch-group {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-md);
+}
+
+.switch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 0;
 }
 
 .no-rsc-section {

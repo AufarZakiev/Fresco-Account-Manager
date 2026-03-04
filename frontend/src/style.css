@@ -363,6 +363,48 @@ input[type="checkbox"]:checked::after {
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
+/* ===== Toggle Switch (Fresco-style) ===== */
+
+.toggle-switch {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--color-text-tertiary);
+  opacity: 0.4;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  display: inline-block;
+  transition:
+    background 0.2s,
+    opacity 0.2s;
+}
+
+.toggle-switch.on {
+  background: var(--color-accent);
+  opacity: 1;
+}
+
+.toggle-switch.disabled {
+  cursor: not-allowed;
+  opacity: 0.25;
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  transition: left 0.2s;
+}
+
+.toggle-switch.on .toggle-knob {
+  left: 18px;
+}
+
 /* ===== Auth Pages ===== */
 
 .auth-page {
