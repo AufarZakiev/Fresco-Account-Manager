@@ -2,8 +2,10 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
+import { useTheme } from "../composables/useTheme";
 
 const auth = useAuthStore();
+const { theme, cycle: cycleTheme } = useTheme();
 const router = useRouter();
 const mobileOpen = ref(false);
 
@@ -126,6 +128,24 @@ function onNavClick() {
         <span class="sidebar-user-email">{{ auth.user?.email }}</span>
       </div>
       <div class="sidebar-actions">
+        <button
+          class="sidebar-action-btn"
+          :title="`Theme: ${theme}`"
+          @click="cycleTheme"
+        >
+          <!-- sun (light) -->
+          <svg v-if="theme === 'light'" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 1v2m0 10v2M1 8h2m10 0h2M3.05 3.05l1.41 1.41m7.08 7.08l1.41 1.41M3.05 12.95l1.41-1.41m7.08-7.08l1.41-1.41M8 4.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none" />
+          </svg>
+          <!-- moon (dark) -->
+          <svg v-else-if="theme === 'dark'" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M6 2a6 6 0 1 0 8 8c-3.3 0-6-2.7-6-6a6 6 0 0 0-2-2z" />
+          </svg>
+          <!-- auto (system) -->
+          <svg v-else width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 1.5v11a5.5 5.5 0 0 1 0-11z" />
+          </svg>
+        </button>
         <button
           class="sidebar-action-btn"
           title="Sign out"
