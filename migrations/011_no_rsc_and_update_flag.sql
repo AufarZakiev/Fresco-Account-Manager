@@ -1,0 +1,1 @@
+ALTER TABLE user_projects ADD COLUMN force_update BOOLEAN NOT NULL DEFAULT FALSE;

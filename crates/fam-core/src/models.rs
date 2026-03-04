@@ -61,6 +61,7 @@ pub struct UserProject {
     pub last_error: Option<String>,
     pub consecutive_failures: i32,
     pub no_rsc: Vec<String>,
+    pub force_update: bool,
     pub total_credit: f32,
     pub recent_credit: f32,
     pub last_info_sync: Option<time::OffsetDateTime>,

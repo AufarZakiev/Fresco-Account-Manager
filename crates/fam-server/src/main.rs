@@ -14,6 +14,9 @@ use tower_http::services::{ServeDir, ServeFile};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::EnvFilter;
 
+use fam_core::mock_projects::{MockProjectStore, MOCK_PROJECTS};
+use fam_core::project_rpc::ProjectRpcClient;
+
 use crate::config::FamConfig;
 use crate::state::AppState;
 
@@ -47,6 +50,15 @@ async fn main() -> anyhow::Result<()> {
     let boinc_public_key_text = fam_core::crypto::public_key_to_boinc_format(&rsa_public_key);
     tracing::info!("RSA keys loaded");
 
+    // Build project RPC client (mock or real)
+    let project_rpc = if config.mock_projects {
+        let mock_store = Arc::new(MockProjectStore::new());
+        seed_mock_projects(&db).await;
+        ProjectRpcClient::with_mock(mock_store)
+    } else {
+        ProjectRpcClient::new()
+    };
+
     // Spawn background tasks (session cleanup, stale host cleanup)
     background::spawn_background_tasks(db.clone());
 
@@ -56,6 +68,7 @@ async fn main() -> anyhow::Result<()> {
         rsa_private_key,
         rsa_public_key,
         boinc_public_key_text,
+        project_rpc,
     });
 
     // BOINC protocol endpoints
@@ -88,6 +101,11 @@ async fn main() -> anyhow::Result<()> {
             "/projects/{id}",
             axum::routing::get(routes::api::projects::get_project),
         )
+        // Project apps (from project server)
+        .route(
+            "/projects/{id}/apps",
+            axum::routing::get(routes::api::user_projects::get_project_apps),
+        )
         // User projects
         .route(
             "/user/projects",
@@ -110,6 +128,12 @@ async fn main() -> anyhow::Result<()> {
         .route(
             "/user/projects/{id}/detach",
             axum::routing::post(routes::api::user_projects::detach_project),
+        )
+        // Project preferences (from project server)
+        .route(
+            "/user/projects/{id}/prefs",
+            axum::routing::get(routes::api::user_projects::get_project_prefs)
+                .put(routes::api::user_projects::set_project_prefs),
         )
         // Hosts
         .route(
@@ -178,4 +202,37 @@ async fn main() -> anyhow::Result<()> {
     axum::serve(listener, app).await?;
 
     Ok(())
+}
+
+/// Seed all mock project definitions into the projects table.
+async fn seed_mock_projects(db: &sqlx::PgPool) {
+    tracing::info!("seeding {} mock projects", MOCK_PROJECTS.len());
+
+    for project in MOCK_PROJECTS {
+        let result = sqlx::query(
+            "INSERT INTO projects (url, name, description, general_area, specific_area, home_url, is_active) \
+             VALUES ($1, $2, $3, $4, $5, $6, true) \
+             ON CONFLICT (url) DO UPDATE SET \
+               name = EXCLUDED.name, \
+               description = EXCLUDED.description, \
+               general_area = EXCLUDED.general_area, \
+               specific_area = EXCLUDED.specific_area, \
+               home_url = EXCLUDED.home_url, \
+               is_active = true",
+        )
+        .bind(project.url)
+        .bind(project.name)
+        .bind(project.description)
+        .bind(project.general_area)
+        .bind(project.specific_area)
+        .bind(project.home_url)
+        .execute(db)
+        .await;
+
+        if let Err(e) = result {
+            tracing::warn!(project = project.name, error = %e, "failed to seed mock project");
+        }
+    }
+
+    tracing::info!("mock projects seeded");
 }

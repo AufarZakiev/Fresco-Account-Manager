@@ -9,6 +9,7 @@ pub struct FamConfig {
     pub repeat_sec: u32,
     pub private_key_path: String,
     pub public_key_path: String,
+    pub mock_projects: bool,
 }
 
 impl FamConfig {
@@ -35,10 +36,15 @@ impl FamConfig {
         let public_key_path =
             std::env::var("FAM_PUBLIC_KEY_PATH").unwrap_or_else(|_| "keys/public.pem".to_string());
 
+        let mock_projects = std::env::var("FAM_MOCK_PROJECTS")
+            .map(|v| v == "true" || v == "1")
+            .unwrap_or(false);
+
         tracing::debug!(
             repeat_sec,
             %private_key_path,
             %public_key_path,
+            mock_projects,
             "loaded config"
         );
 
@@ -49,6 +55,7 @@ impl FamConfig {
             repeat_sec,
             private_key_path,
             public_key_path,
+            mock_projects,
         })
     }
 }

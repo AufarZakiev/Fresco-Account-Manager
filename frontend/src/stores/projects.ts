@@ -59,8 +59,8 @@ export const useProjectsStore = defineStore("projects", () => {
 
   async function enroll(projectId: number): Promise<boolean> {
     try {
-      const up = await apiEnrollProject(projectId);
-      userProjects.value.push(up);
+      await apiEnrollProject(projectId);
+      await fetchUserProjects();
       return true;
     } catch {
       return false;
@@ -72,10 +72,12 @@ export const useProjectsStore = defineStore("projects", () => {
     patch: UserProjectPatch,
   ): Promise<boolean> {
     try {
-      const updated = await apiUpdateUserProject(id, patch);
+      await apiUpdateUserProject(id, patch);
+      // Optimistic local update for known fields
       const idx = userProjects.value.findIndex((p) => p.id === id);
       if (idx !== -1) {
-        userProjects.value[idx] = updated;
+        const current = userProjects.value[idx];
+        userProjects.value[idx] = { ...current, ...patch };
       }
       return true;
     } catch {

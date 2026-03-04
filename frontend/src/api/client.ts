@@ -70,12 +70,32 @@ export interface UserProject {
   detach_when_done: boolean;
   last_error: string | null;
   consecutive_failures: number;
+  no_rsc: string[];
 }
 
 export interface UserProjectPatch {
   resource_share?: number;
   suspended?: boolean;
   dont_request_more_work?: boolean;
+  no_rsc?: string[];
+}
+
+export interface ProjectPrefsResponse {
+  project_prefs: string | null;
+}
+
+export interface ProjectConfigApp {
+  name: string;
+  id: number;
+  user_friendly_name: string;
+}
+
+export interface ProjectConfig {
+  name: string;
+  web_rpc_url_base: string;
+  client_account_creation_disabled: boolean;
+  apps: ProjectConfigApp[];
+  platforms: string[];
 }
 
 // ---------- Auth API ----------
@@ -112,6 +132,10 @@ export function apiGetProject(id: number) {
   return apiFetch<Project>(`/projects/${id}`);
 }
 
+export function apiGetProjectApps(projectId: number) {
+  return apiFetch<ProjectConfig>(`/projects/${projectId}/apps`);
+}
+
 // ---------- User Projects API ----------
 
 export function apiListUserProjects() {
@@ -146,6 +170,22 @@ export function apiResumeProject(id: number) {
 
 export function apiDetachProject(id: number) {
   return apiFetch<void>(`/user/projects/${id}/detach`, { method: "POST" });
+}
+
+export function apiGetProjectPrefs(userProjectId: number) {
+  return apiFetch<ProjectPrefsResponse>(
+    `/user/projects/${userProjectId}/prefs`,
+  );
+}
+
+export function apiSetProjectPrefs(
+  userProjectId: number,
+  projectPrefs: string,
+) {
+  return apiFetch<void>(`/user/projects/${userProjectId}/prefs`, {
+    method: "PUT",
+    body: JSON.stringify({ project_prefs: projectPrefs }),
+  });
 }
 
 // ---------- Host Types ----------

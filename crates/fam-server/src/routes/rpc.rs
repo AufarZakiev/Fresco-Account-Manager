@@ -169,6 +169,7 @@ async fn fetch_user_accounts(
     let rows = sqlx::query_as::<_, UserProjectRow>(
         "SELECT up.id, up.project_authenticator, up.resource_share, up.suspended, \
          up.dont_request_more_work, up.pending_detach, up.detach_when_done, up.no_rsc, \
+         up.force_update, \
          p.url, p.url_signature \
          FROM user_projects up \
          JOIN projects p ON p.id = up.project_id \
@@ -179,6 +180,7 @@ async fn fetch_user_accounts(
     .await?;
 
     let mut accounts = Vec::new();
+    let mut force_update_ids = Vec::new();
 
     for row in rows {
         // If pending_detach, send detach signal and delete the row after this RPC
@@ -206,6 +208,10 @@ async fn fetch_user_accounts(
             continue;
         }
 
+        if row.force_update {
+            force_update_ids.push(row.id);
+        }
+
         accounts.push(AccountEntry {
             url: row.url,
             url_signature: row.url_signature,
@@ -215,10 +221,20 @@ async fn fetch_user_accounts(
             dont_request_more_work: row.dont_request_more_work,
             detach_when_done: row.detach_when_done,
             detach: false,
-            update: false,
+            update: row.force_update,
             no_rsc: row.no_rsc,
             abort_not_started: false,
         });
+    }
+
+    // Reset force_update flags after building the reply
+    if !force_update_ids.is_empty() {
+        let _ = sqlx::query(
+            "UPDATE user_projects SET force_update = false WHERE id = ANY($1)",
+        )
+        .bind(&force_update_ids)
+        .execute(&state.db)
+        .await;
     }
 
     Ok(accounts)
@@ -262,6 +278,7 @@ struct UserProjectRow {
     pending_detach: bool,
     detach_when_done: bool,
     no_rsc: Vec<String>,
+    force_update: bool,
     url: String,
     url_signature: String,
 }
