@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use axum::extract::State;
+use sqlx::PgPool;
 use axum::http::header;
 use axum::response::IntoResponse;
 
@@ -9,7 +10,7 @@ use fam_core::auth::{
     set_user_preferences, upsert_host, AuthError, UpsertHostParams,
 };
 use fam_core::xml::reply::{build_acct_mgr_reply, build_error_reply, AccountEntry, AcctMgrReply};
-use fam_core::xml::request::parse_acct_mgr_request;
+use fam_core::xml::request::{parse_acct_mgr_request, RequestProject};
 
 use crate::state::AppState;
 
@@ -93,7 +94,10 @@ async fn handle_rpc_inner(state: &AppState, body: &str) -> String {
         }
     };
 
-    // 4. Fetch user's enrolled projects
+    // 4. Sync project authenticators from client's project list
+    sync_project_authenticators(&state.db, user.id, &request.projects).await;
+
+    // 5. Fetch user's enrolled projects
     let accounts = match fetch_user_accounts(state, user.id).await {
         Ok(accounts) => accounts,
         Err(e) => {
@@ -102,17 +106,17 @@ async fn handle_rpc_inner(state: &AppState, body: &str) -> String {
         }
     };
 
-    // 5. Handle global preferences
+    // 6. Handle global preferences
     // If client sends newer prefs, store them. If server has newer prefs, include in reply.
     let global_preferences = handle_preferences(state, user.id, &request).await;
 
-    // 6. Get host venue
+    // 7. Get host venue
     let host_venue = match get_host_venue(&state.db, host_id).await {
         Ok(v) if !v.is_empty() => Some(v),
         _ => None,
     };
 
-    // 7. Build reply
+    // 8. Build reply
     let reply = AcctMgrReply {
         name: state.config.server_name.clone(),
         authenticator: Some(user.authenticator.clone()),
@@ -160,6 +164,98 @@ async fn handle_preferences(
     }
 
     None
+}
+
+fn normalize_project_url(url: &str) -> String {
+    url.trim_end_matches('/').to_lowercase()
+}
+
+/// Capture project authenticators reported by the BOINC client.
+///
+/// The client sends `account_key` for each project it's attached to. We store it in
+/// `user_projects.project_authenticator` so FAM can later call project server APIs and
+/// include the project in AM reply `<account>` entries.
+///
+/// Safety: `WHERE project_authenticator = ''` ensures we never overwrite a valid authenticator.
+async fn sync_project_authenticators(
+    db: &PgPool,
+    user_id: i64,
+    client_projects: &[RequestProject],
+) {
+    // Load all active projects once to avoid N+1 queries
+    let db_projects = match sqlx::query_as::<_, ProjectUrlRow>(
+        "SELECT id, url FROM projects WHERE is_active = true",
+    )
+    .fetch_all(db)
+    .await
+    {
+        Ok(rows) => rows,
+        Err(e) => {
+            tracing::warn!(error = %e, "failed to load projects for auth sync");
+            return;
+        }
+    };
+
+    // Build a lookup: normalized_url → project_id
+    let url_to_id: std::collections::HashMap<String, i64> = db_projects
+        .iter()
+        .map(|p| (normalize_project_url(&p.url), p.id))
+        .collect();
+
+    for cp in client_projects {
+        let account_key = match cp.account_key.as_deref() {
+            Some(key) if !key.is_empty() => key,
+            _ => continue,
+        };
+
+        let normalized = normalize_project_url(&cp.url);
+        let project_id = match url_to_id.get(&normalized) {
+            Some(&id) => id,
+            None => continue,
+        };
+
+        let result = if cp.attached_via_acct_mgr {
+            // Managed project: upsert (create row if needed)
+            sqlx::query(
+                "INSERT INTO user_projects (user_id, project_id, project_authenticator) \
+                 VALUES ($1, $2, $3) \
+                 ON CONFLICT (user_id, project_id) \
+                 DO UPDATE SET project_authenticator = EXCLUDED.project_authenticator \
+                 WHERE user_projects.project_authenticator = ''",
+            )
+            .bind(user_id)
+            .bind(project_id)
+            .bind(account_key)
+            .execute(db)
+            .await
+        } else {
+            // Manually attached: only update existing row, don't auto-enroll
+            sqlx::query(
+                "UPDATE user_projects \
+                 SET project_authenticator = $1 \
+                 WHERE user_id = $2 AND project_id = $3 AND project_authenticator = ''",
+            )
+            .bind(account_key)
+            .bind(user_id)
+            .bind(project_id)
+            .execute(db)
+            .await
+        };
+
+        if let Err(e) = result {
+            tracing::warn!(
+                error = %e,
+                project_id,
+                "failed to sync project authenticator"
+            );
+        }
+    }
+}
+
+#[derive(sqlx::FromRow)]
+struct ProjectUrlRow {
+    id: i64,
+    url: String,
 }
 
 async fn fetch_user_accounts(
