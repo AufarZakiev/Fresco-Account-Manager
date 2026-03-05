@@ -176,6 +176,9 @@ async function saveProjectPrefs(upId: number) {
             <span v-else-if="up.suspended" class="badge badge-default">
               Suspended
             </span>
+            <span v-if="!up.is_linked" class="badge badge-default">
+              Waiting for client
+            </span>
             <span
               v-if="up.last_error"
               class="badge badge-danger"
@@ -275,7 +278,9 @@ async function saveProjectPrefs(upId: number) {
           <button
             v-if="!up.pending_detach"
             class="btn-secondary"
-            @click="togglePrefsPanel(up)"
+            :disabled="!up.is_linked"
+            :title="!up.is_linked ? 'Requires BOINC client sync' : ''"
+            @click="up.is_linked && togglePrefsPanel(up)"
           >
             {{ prefsOpen[up.id] ? "Close Preferences" : "Project Preferences" }}
           </button>
