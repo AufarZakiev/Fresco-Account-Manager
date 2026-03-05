@@ -19,7 +19,7 @@ pub struct UserProjectResponse {
     pub resource_share: f32,
     pub suspended: bool,
     pub dont_request_more_work: bool,
-    pub has_authenticator: bool,
+    pub is_linked: bool,
     pub pending_detach: bool,
     pub detach_when_done: bool,
     pub last_error: Option<String>,
@@ -59,7 +59,7 @@ pub async fn list_user_projects(
     let rows = sqlx::query_as::<_, UserProjectResponse>(
         "SELECT up.id, up.project_id, p.name as project_name, p.url as project_url, \
          up.resource_share, up.suspended, up.dont_request_more_work, \
-         (up.project_authenticator != '') as has_authenticator, \
+         (up.project_authenticator != '') as is_linked, \
          up.pending_detach, up.detach_when_done, up.last_error, up.consecutive_failures, \
          up.no_rsc \
          FROM user_projects up \

@@ -65,7 +65,7 @@ export interface UserProject {
   resource_share: number;
   suspended: boolean;
   dont_request_more_work: boolean;
-  has_authenticator: boolean;
+  is_linked: boolean;
   pending_detach: boolean;
   detach_when_done: boolean;
   last_error: string | null;
